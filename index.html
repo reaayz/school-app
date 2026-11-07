@@ -44,6 +44,27 @@
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        army: {
+                            900: '#1a2218',
+                            800: '#283424',
+                            700: '#394934',
+                            600: '#4c6145',
+                            500: '#5e7955',
+                            accent: '#82a373',
+                            highlight: '#d4e157',
+                            gold: '#c5a059',
+                            dark: '#0f140e'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -53,85 +74,285 @@
         ::-webkit-scrollbar-thumb { background: #394934; border-radius: 3px; }
     </style>
 </head>
-<body class="h-full flex flex-col font-sans overflow-hidden bg-slate-950 text-slate-100">
+<body class="h-full flex flex-col font-sans overflow-hidden bg-army-dark selection:bg-army-accent selection:text-black">
 
-    <header class="bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center justify-between shadow-lg z-20 shrink-0">
+    <header class="bg-army-900 border-b border-army-700/50 px-4 py-3 flex items-center justify-between shadow-lg z-20 shrink-0">
         <div class="flex items-center space-x-3">
-            <div class="w-9 h-9 rounded-lg bg-emerald-900/40 border border-emerald-500/50 flex items-center justify-center">
-                <i class="fa-solid fa-shield-halved text-emerald-400 text-lg"></i>
+            <div class="w-9 h-9 rounded-lg bg-army-700 border border-army-accent flex items-center justify-center shadow-inner">
+                <i class="fa-solid font-bold fa-shield-halved text-army-highlight text-lg"></i>
             </div>
             <div>
                 <h1 class="font-bold tracking-wider text-sm uppercase text-slate-100 flex items-center gap-2">
                     ÖBH LERN-DOCK
-                    <span class="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-1.5 py-0.5 rounded">CLOUD SYNC</span>
+                    <span class="text-[10px] bg-army-800 text-army-accent border border-army-600/50 px-1.5 py-0.5 rounded">CLOUD SYNC</span>
                 </h1>
-                <p class="text-[11px] text-slate-400 font-mono">BUNDESHEER KNOWLEDGE SYSTEM</p>
+                <p class="text-[11px] text-army-accent/80 font-mono">BUNDESHEER KNOWLEDGE SYSTEM</p>
             </div>
         </div>
-        <button onclick="app.openNewFolderModal()" class="px-3 py-1.5 rounded-md bg-emerald-700 hover:bg-emerald-600 text-xs font-bold text-white shadow transition">
-            <i class="fa-solid fa-plus mr-1"></i> Neuer Ordner
-        </button>
+        <div class="flex items-center space-x-2">
+            <button onclick="app.openNewFolderModal()" class="px-2.5 py-1.5 rounded-md bg-army-800 border border-army-600 hover:bg-army-700 text-xs font-medium text-army-accent flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-folder-plus"></i> <span class="hidden sm:inline">Ordner</span>
+            </button>
+            <button onclick="app.openNewCardModal()" class="px-3 py-1.5 rounded-md bg-army-500 hover:bg-army-600 border border-army-400 text-xs font-bold text-slate-950 flex items-center gap-1.5 shadow transition">
+                <i class="fa-solid fa-plus"></i> Karte
+            </button>
+        </div>
     </header>
 
     <main id="main-content" class="flex-1 overflow-y-auto p-4 md:p-6 pb-24 relative">
         <div class="text-center py-12 text-slate-400 text-sm">Lade Daten aus der Cloud...</div>
     </main>
 
+    <nav class="fixed bottom-0 left-0 right-0 bg-army-900/95 backdrop-blur-md border-t border-army-700/60 px-2 py-2 z-30 flex justify-around items-center shrink-0">
+        <button onclick="app.switchTab('decks')" id="nav-decks" class="nav-btn flex flex-col items-center py-1 px-3 rounded-lg text-army-accent">
+            <i class="fa-solid fa-layer-group text-lg"></i>
+            <span class="text-[10px] font-semibold mt-1">Ordner</span>
+        </button>
+        <button onclick="app.switchTab('quiz')" id="nav-quiz" class="nav-btn flex flex-col items-center py-1 px-3 rounded-lg text-slate-400 hover:text-army-accent">
+            <i class="fa-solid fa-circle-play text-lg"></i>
+            <span class="text-[10px] font-semibold mt-1">Abfrage</span>
+        </button>
+        <button onclick="app.switchTab('docs')" id="nav-docs" class="nav-btn flex flex-col items-center py-1 px-3 rounded-lg text-slate-400 hover:text-army-accent">
+            <i class="fa-solid fa-book-bookmark text-lg"></i>
+            <span class="text-[10px] font-semibold mt-1">Dokumente</span>
+        </button>
+        <button onclick="app.switchTab('stats')" id="nav-stats" class="nav-btn flex flex-col items-center py-1 px-3 rounded-lg text-slate-400 hover:text-army-accent">
+            <i class="fa-solid fa-chart-line text-lg"></i>
+            <span class="text-[10px] font-semibold mt-1">Statistik</span>
+        </button>
+    </nav>
+
+    <!-- MODAL FOLDER -->
+    <div id="modal-folder" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-army-900 border border-army-600 rounded-xl max-w-md w-full p-5 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-army-700/60 pb-3">
+                <h3 class="text-base font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-folder-plus text-army-accent"></i> Neuer Lern-Ordner</h3>
+                <button onclick="app.closeModal('modal-folder')" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-folder" onsubmit="app.saveFolder(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-army-accent mb-1">Ordnername</label>
+                    <input type="text" id="folder-name" required placeholder="z.B. StG77 A1 MOD Technik" class="w-full bg-army-800 border border-army-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-army-accent">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-army-accent mb-1">Kategorie</label>
+                    <select id="folder-category" class="w-full bg-army-800 border border-army-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-army-accent">
+                        <option value="Waffenkunde">Waffenkunde & Schießen</option>
+                        <option value="Dienstgrade">Dienstgrade & Abzeichen</option>
+                        <option value="Vorschriften">Vorschriften & Recht</option>
+                        <option value="Allgemein">Allgemein / Sonstiges</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-2 pt-2 border-t border-army-700/60">
+                    <button type="button" onclick="app.closeModal('modal-folder')" class="px-4 py-2 rounded-lg bg-army-800 text-xs font-semibold text-slate-300">Abbrechen</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg bg-army-500 text-xs font-bold text-slate-950">Erstellen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL CARD -->
+    <div id="modal-card" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-army-900 border border-army-600 rounded-xl max-w-lg w-full p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-army-700/60 pb-3">
+                <h3 class="text-base font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-square-plus text-army-accent"></i> Karteikarte Erstellen</h3>
+                <button onclick="app.closeModal('modal-card')" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-card" onsubmit="app.saveCard(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-army-accent mb-1">Ziel-Ordner</label>
+                    <select id="card-folder-id" required class="w-full bg-army-800 border border-army-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-army-accent"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-army-accent mb-1">Frage</label>
+                    <textarea id="card-front" required rows="2" class="w-full bg-army-800 border border-army-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-army-accent"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-army-accent mb-1">Antwort</label>
+                    <textarea id="card-back" required rows="3" class="w-full bg-army-800 border border-army-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-army-accent"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 pt-2 border-t border-army-700/60">
+                    <button type="button" onclick="app.closeModal('modal-card')" class="px-4 py-2 rounded-lg bg-army-800 text-xs font-semibold text-slate-300">Abbrechen</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg bg-army-500 text-xs font-bold text-slate-950">Speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         class App {
             constructor() {
+                this.currentTab = 'decks';
                 this.folders = [];
                 this.cards = [];
+                this.documents = [];
+                this.quizQueue = [];
+                this.quizIndex = 0;
+                this.quizFlipped = false;
             }
 
             async init() {
                 const cloudData = await loadFromCloud();
-                if (cloudData && Array.isArray(cloudData.folders)) {
+                if (cloudData && Array.isArray(cloudData.folders) && cloudData.folders.length > 0) {
                     this.folders = cloudData.folders;
                     this.cards = cloudData.cards || [];
+                    this.documents = cloudData.documents || [];
                 } else {
                     this.folders = [{ id: 'f_stg77', name: 'StG77 A1 MOD Technik', category: 'Waffenkunde', description: 'Technische Daten' }];
                     this.cards = [{ id: 'c_1', folderId: 'f_stg77', front: '6 Hauptteile des StG77 A1 MOD?', back: '1. Lauf\n2. Gasdruckeinrichtung\n3. Verschluss\n4. Kolben\n5. Visiereinrichtung\n6. Gehäuse' }];
                     await this.syncToCloud();
                 }
-                this.render();
+                this.switchTab('decks');
             }
 
             async syncToCloud() {
-                await saveToCloud({ folders: this.folders, cards: this.cards });
+                await saveToCloud({ folders: this.folders, cards: this.cards, documents: this.documents });
             }
 
-            render() {
-                const main = document.getElementById('main-content');
-                let html = `<div class="max-w-4xl mx-auto space-y-4"><h2 class="text-xl font-bold uppercase tracking-wide">Ordner</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
-                
-                this.folders.forEach(f => {
-                    const count = this.cards.filter(c => c.folderId === f.id).length;
-                    html += `
-                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex justify-between items-center shadow">
-                            <div>
-                                <h3 class="font-bold text-base text-slate-100">${this.escapeHtml(f.name)}</h3>
-                                <p class="text-xs text-slate-400 mt-0.5">${count} Karteikarten</p>
-                            </div>
-                            <span class="px-3 py-1 bg-emerald-900/40 border border-emerald-700/50 text-emerald-300 text-xs font-bold rounded-lg">Aktiv</span>
-                        </div>
-                    `;
+            switchTab(tab) {
+                this.currentTab = tab;
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.classList.remove('text-army-accent', 'bg-army-800/50');
+                    btn.classList.add('text-slate-400');
                 });
-                
-                main.innerHTML = html + `</div></div>`;
+                const activeNav = document.getElementById(`nav-${tab}`);
+                if (activeNav) {
+                    activeNav.classList.add('text-army-accent', 'bg-army-800/50');
+                    activeNav.classList.remove('text-slate-400');
+                }
+
+                const main = document.getElementById('main-content');
+                if (tab === 'decks') this.renderDecksView(main);
+                else if (tab === 'quiz') this.renderQuizView(main);
+                else if (tab === 'docs') this.renderDocsView(main);
+                else if (tab === 'stats') this.renderStatsView(main);
             }
 
-            openNewFolderModal() {
-                const name = prompt("Name des neuen Ordners:");
-                if (!name) return;
-                this.folders.push({ id: 'f_' + Date.now(), name: name, category: 'Allgemein' });
-                this.syncToCloud();
-                this.render();
+            renderDecksView(container) {
+                let html = `<div class="max-w-4xl mx-auto space-y-4"><div class="flex justify-between items-center"><h2 class="text-xl font-bold uppercase">Ordner</h2><button onclick="app.openNewFolderModal()" class="px-3 py-2 bg-army-700 rounded text-xs font-semibold">Neuer Ordner</button></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+                if (!this.folders || this.folders.length === 0) {
+                    html += `<p class="text-slate-400 text-sm">Keine Ordner vorhanden.</p>`;
+                } else {
+                    this.folders.forEach(f => {
+                        const count = this.cards.filter(c => c.folderId === f.id).length;
+                        html += `
+                            <div class="bg-army-900 border border-army-700 rounded-xl p-4 flex justify-between items-center">
+                                <div>
+                                    <h3 class="font-bold text-slate-100">${this.escapeHtml(f.name)}</h3>
+                                    <span class="text-xs text-slate-400">${count} Karten</span>
+                                </div>
+                                <button onclick="app.startQuizForFolder('${f.id}')" class="px-3 py-1 bg-army-600 rounded text-xs font-bold text-white">Lernen</button>
+                            </div>
+                        `;
+                    });
+                }
+                container.innerHTML = html + `</div></div>`;
             }
 
-            escapeHtml(str) {
-                return String(str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            renderQuizView(container) {
+                if (this.cards.length === 0) { 
+                    container.innerHTML = `<div class="max-w-xl mx-auto text-center py-12 text-slate-400">Keine Karten vorhanden. Erstelle zuerst eine Karteikarte!</div>`; 
+                    return; 
+                }
+                if (this.quizIndex >= this.quizQueue.length) { this.quizQueue = [...this.cards]; this.quizIndex = 0; }
+                const card = this.quizQueue[this.quizIndex];
+                if (!card) {
+                    container.innerHTML = `<div class="max-w-xl mx-auto text-center py-12 text-slate-400">Keine Karten in der Warteschlange.</div>`;
+                    return;
+                }
+                container.innerHTML = `
+                    <div class="max-w-xl mx-auto space-y-4">
+                        <div class="text-xs font-mono text-army-accent text-center">Karte ${this.quizIndex + 1} von ${this.quizQueue.length}</div>
+                        <div onclick="app.flipQuizCard()" class="bg-army-900 border border-army-700 rounded-xl p-8 min-h-[220px] flex items-center justify-center text-center cursor-pointer shadow-lg hover:border-army-accent transition">
+                            <p class="text-lg font-medium text-slate-100">${this.escapeHtml(this.quizFlipped ? card.back : card.front)}</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="app.flipQuizCard()" class="py-3 bg-army-800 border border-army-700 hover:bg-army-700 rounded-lg text-xs font-bold text-slate-200">Umdrehen</button>
+                            <button onclick="app.answerQuiz()" class="py-3 bg-army-500 hover:bg-army-600 rounded-lg text-xs font-bold text-slate-950 shadow">Nächste Karte</button>
+                        </div>
+                    </div>
+                `;
             }
+
+            renderDocsView(container) { 
+                container.innerHTML = `<div class="max-w-xl mx-auto text-slate-400 text-sm text-center py-12">Dokumentenansicht aktiv.</div>`; 
+            }
+
+            renderStatsView(container) { 
+                container.innerHTML = `
+                    <div class="max-w-xl mx-auto space-y-4">
+                        <h2 class="text-xl font-bold uppercase tracking-wide">Statistik</h2>
+                        <div class="bg-army-900 border border-army-700 rounded-xl p-6 space-y-3">
+                            <div class="flex justify-between items-center border-b border-army-800 pb-2">
+                                <span class="text-sm text-slate-400">Gesamte Ordner</span>
+                                <span class="font-bold text-army-accent">${this.folders.length}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-slate-400">Gesamte Karteikarten</span>
+                                <span class="font-bold text-army-accent">${this.cards.length}</span>
+                            </div>
+                        </div>
+                    </div>
+                `; 
+            }
+
+            openNewFolderModal() { document.getElementById('modal-folder').classList.remove('hidden'); }
+            openNewCardModal() {
+                if (this.folders.length === 0) {
+                    alert('Bitte erstelle zuerst einen Ordner!');
+                    return;
+                }
+                const sel = document.getElementById('card-folder-id');
+                sel.innerHTML = this.folders.map(f => `<option value="${f.id}">${f.name}</option>`).join('');
+                document.getElementById('modal-card').classList.remove('hidden');
+            }
+            closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+            async saveFolder(e) {
+                e.preventDefault();
+                const f = { 
+                    id: 'f_' + Date.now(), 
+                    name: document.getElementById('folder-name').value, 
+                    category: document.getElementById('folder-category').value 
+                };
+                this.folders.push(f);
+                await this.syncToCloud(); // Speichert direkt in Supabase!
+                this.closeModal('modal-folder');
+                document.getElementById('form-folder').reset();
+                this.switchTab('decks');
+            }
+
+            async saveCard(e) {
+                e.preventDefault();
+                const c = { 
+                    id: 'c_' + Date.now(), 
+                    folderId: document.getElementById('card-folder-id').value, 
+                    front: document.getElementById('card-front').value, 
+                    back: document.getElementById('card-back').value 
+                };
+                this.cards.push(c);
+                await this.syncToCloud(); // Speichert direkt in Supabase!
+                this.closeModal('modal-card');
+                document.getElementById('form-card').reset();
+                this.switchTab('decks');
+            }
+
+            startQuizForFolder(id) { 
+                this.quizQueue = this.cards.filter(c => c.folderId === id); 
+                this.quizIndex = 0; 
+                this.quizFlipped = false;
+                this.switchTab('quiz'); 
+            }
+            flipQuizCard() { 
+                this.quizFlipped = !this.quizFlipped; 
+                this.switchTab('quiz'); 
+            }
+            answerQuiz() { 
+                this.quizIndex++; 
+                this.quizFlipped = false; 
+                this.switchTab('quiz'); 
+            }
+            escapeHtml(str) { return String(str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
         }
 
         const app = new App();

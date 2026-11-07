@@ -99,9 +99,7 @@
         </div>
     </header>
 
-    <main id="main-content" class="flex-1 overflow-y-auto p-4 md:p-6 pb-24 relative">
-        <div class="text-center py-12 text-slate-400 text-sm">Lade Daten aus der Cloud...</div>
-    </main>
+    <main id="main-content" class="flex-1 overflow-y-auto p-4 md:p-6 pb-24 relative"></main>
 
     <nav class="fixed bottom-0 left-0 right-0 bg-army-900/95 backdrop-blur-md border-t border-army-700/60 px-2 py-2 z-30 flex justify-around items-center shrink-0">
         <button onclick="app.switchTab('decks')" id="nav-decks" class="nav-btn flex flex-col items-center py-1 px-3 rounded-lg text-army-accent">
@@ -183,8 +181,8 @@
         class App {
             constructor() {
                 this.currentTab = 'decks';
-                this.folders = [];
-                this.cards = [];
+                this.folders = [{ id: 'f_stg77', name: 'StG77 A1 MOD Technik', category: 'Waffenkunde', description: 'Technische Daten' }];
+                this.cards = [{ id: 'c_1', folderId: 'f_stg77', front: '6 Hauptteile des StG77 A1 MOD?', back: '1. Lauf\n2. Gasdruckeinrichtung\n3. Verschluss\n4. Kolben\n5. Visiereinrichtung\n6. Gehäuse' }];
                 this.documents = [];
                 this.quizQueue = [];
                 this.quizIndex = 0;
@@ -192,17 +190,21 @@
             }
 
             async init() {
-                const cloudData = await window.loadFromCloud();
-                if (cloudData && Array.isArray(cloudData.folders) && cloudData.folders.length > 0) {
-                    this.folders = cloudData.folders;
-                    this.cards = cloudData.cards || [];
-                    this.documents = cloudData.documents || [];
-                } else {
-                    this.folders = [{ id: 'f_stg77', name: 'StG77 A1 MOD Technik', category: 'Waffenkunde', description: 'Technische Daten' }];
-                    this.cards = [{ id: 'c_1', folderId: 'f_stg77', front: '6 Hauptteile des StG77 A1 MOD?', back: '1. Lauf\n2. Gasdruckeinrichtung\n3. Verschluss\n4. Kolben\n5. Visiereinrichtung\n6. Gehäuse' }];
-                    await this.syncToCloud();
-                }
+                // Sofort anzeigen, damit die Reiter klickbar sind
                 this.switchTab('decks');
+
+                // Im Hintergrund Cloud-Daten laden
+                try {
+                    const cloudData = await window.loadFromCloud();
+                    if (cloudData && Array.isArray(cloudData.folders) && cloudData.folders.length > 0) {
+                        this.folders = cloudData.folders;
+                        this.cards = cloudData.cards || [];
+                        this.documents = cloudData.documents || [];
+                        this.switchTab(this.currentTab);
+                    }
+                } catch (e) {
+                    console.log('Verwende lokale Standarddaten.');
+                }
             }
 
             async syncToCloud() {
@@ -257,62 +259,4 @@
                 if (this.quizIndex >= this.quizQueue.length) { this.quizQueue = [...this.cards]; this.quizIndex = 0; }
                 const card = this.quizQueue[this.quizIndex];
                 if (!card) {
-                    container.innerHTML = `<div class="max-w-xl mx-auto text-center py-12 text-slate-400">Keine Karten in der Warteschlange.</div>`;
-                    return;
-                }
-                container.innerHTML = `
-                    <div class="max-w-xl mx-auto space-y-4">
-                        <div class="text-xs font-mono text-army-accent text-center">Karte ${this.quizIndex + 1} von ${this.quizQueue.length}</div>
-                        <div onclick="app.flipQuizCard()" class="bg-army-900 border border-army-700 rounded-xl p-8 min-h-[220px] flex items-center justify-center text-center cursor-pointer shadow-lg hover:border-army-accent transition">
-                            <p class="text-lg font-medium text-slate-100">${this.escapeHtml(this.quizFlipped ? card.back : card.front)}</p>
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <button onclick="app.flipQuizCard()" class="py-3 bg-army-800 border border-army-700 hover:bg-army-700 rounded-lg text-xs font-bold text-slate-200">Umdrehen</button>
-                            <button onclick="app.answerQuiz()" class="py-3 bg-army-500 hover:bg-army-600 rounded-lg text-xs font-bold text-slate-950 shadow">Nächste Karte</button>
-                        </div>
-                    </div>
-                `;
-            }
-
-            renderDocsView(container) { 
-                container.innerHTML = `<div class="max-w-xl mx-auto text-slate-400 text-sm text-center py-12">Dokumentenansicht aktiv.</div>`; 
-            }
-
-            renderStatsView(container) { 
-                container.innerHTML = `
-                    <div class="max-w-xl mx-auto space-y-4">
-                        <h2 class="text-xl font-bold uppercase tracking-wide">Statistik</h2>
-                        <div class="bg-army-900 border border-army-700 rounded-xl p-6 space-y-3">
-                            <div class="flex justify-between items-center border-b border-army-800 pb-2">
-                                <span class="text-sm text-slate-400">Gesamte Ordner</span>
-                                <span class="font-bold text-army-accent">${this.folders.length}</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-slate-400">Gesamte Karteikarten</span>
-                                <span class="font-bold text-army-accent">${this.cards.length}</span>
-                            </div>
-                        </div>
-                    </div>
-                `; 
-            }
-
-            openNewFolderModal() { document.getElementById('modal-folder').classList.remove('hidden'); }
-            openNewCardModal() {
-                if (this.folders.length === 0) {
-                    alert('Bitte erstelle zuerst einen Ordner!');
-                    return;
-                }
-                const sel = document.getElementById('card-folder-id');
-                sel.innerHTML = this.folders.map(f => `<option value="${f.id}">${f.name}</option>`).join('');
-                document.getElementById('modal-card').classList.remove('hidden');
-            }
-            closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
-            async saveFolder(e) {
-                e.preventDefault();
-                const f = { 
-                    id: 'f_' + Date.now(), 
-                    name: document.getElementById('folder-name').value, 
-                    category: document.getElementById('folder-category').value 
-                };
-                this.folders.push(f);
+                    container.innerHTML = `<div class="max-w-xl mx-auto text-center py-12 text-slate-400">

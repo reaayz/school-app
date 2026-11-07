@@ -197,14 +197,12 @@
             }
 
             async init() {
-                // Direkt aus der Cloud laden (umgeht Linux/IndexedDB-Probleme komplett)
                 const cloudData = await loadFromCloud();
                 if (cloudData && Array.isArray(cloudData.folders) && cloudData.folders.length > 0) {
                     this.folders = cloudData.folders;
                     this.cards = cloudData.cards || [];
                     this.documents = cloudData.documents || [];
                 } else {
-                    // Standard-Preset falls Cloud noch leer ist
                     this.folders = [{ id: 'f_stg77', name: 'StG77 A1 MOD Technik', category: 'Waffenkunde', description: 'Technische Daten' }];
                     this.cards = [{ id: 'c_1', folderId: 'f_stg77', front: '6 Hauptteile des StG77 A1 MOD?', back: '1. Lauf\n2. Gasdruckeinrichtung\n3. Verschluss\n4. Kolben\n5. Visiereinrichtung\n6. Gehäuse' }];
                     await this.syncToCloud();

@@ -20,16 +20,16 @@
         console.error('Supabase Setup Fehler:', err);
       }
 
-      async function saveToCloud(data) {
+      window.saveToCloud = async function(data) {
         if (!supabase) return;
         try {
           await supabase.from('app_data').upsert({ id: 'user_app_state', content: data });
         } catch (err) {
           console.error('Cloud Sync Fehler beim Speichern:', err);
         }
-      }
+      };
 
-      async function loadFromCloud() {
+      window.loadFromCloud = async function() {
         if (!supabase) return null;
         try {
           const res = await supabase.from('app_data').select('content').eq('id', 'user_app_state');
@@ -39,7 +39,7 @@
           console.error('Cloud Sync Fehler beim Laden:', err);
           return null;
         }
-      }
+      };
     </script>
 
     <!-- Tailwind CSS CDN -->
@@ -192,7 +192,7 @@
             }
 
             async init() {
-                const cloudData = await loadFromCloud();
+                const cloudData = await window.loadFromCloud();
                 if (cloudData && Array.isArray(cloudData.folders) && cloudData.folders.length > 0) {
                     this.folders = cloudData.folders;
                     this.cards = cloudData.cards || [];
@@ -206,7 +206,7 @@
             }
 
             async syncToCloud() {
-                await saveToCloud({ folders: this.folders, cards: this.cards, documents: this.documents });
+                await window.saveToCloud({ folders: this.folders, cards: this.cards, documents: this.documents });
             }
 
             switchTab(tab) {
@@ -316,47 +316,3 @@
                     category: document.getElementById('folder-category').value 
                 };
                 this.folders.push(f);
-                await this.syncToCloud(); // Speichert direkt in Supabase!
-                this.closeModal('modal-folder');
-                document.getElementById('form-folder').reset();
-                this.switchTab('decks');
-            }
-
-            async saveCard(e) {
-                e.preventDefault();
-                const c = { 
-                    id: 'c_' + Date.now(), 
-                    folderId: document.getElementById('card-folder-id').value, 
-                    front: document.getElementById('card-front').value, 
-                    back: document.getElementById('card-back').value 
-                };
-                this.cards.push(c);
-                await this.syncToCloud(); // Speichert direkt in Supabase!
-                this.closeModal('modal-card');
-                document.getElementById('form-card').reset();
-                this.switchTab('decks');
-            }
-
-            startQuizForFolder(id) { 
-                this.quizQueue = this.cards.filter(c => c.folderId === id); 
-                this.quizIndex = 0; 
-                this.quizFlipped = false;
-                this.switchTab('quiz'); 
-            }
-            flipQuizCard() { 
-                this.quizFlipped = !this.quizFlipped; 
-                this.switchTab('quiz'); 
-            }
-            answerQuiz() { 
-                this.quizIndex++; 
-                this.quizFlipped = false; 
-                this.switchTab('quiz'); 
-            }
-            escapeHtml(str) { return String(str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
-        }
-
-        const app = new App();
-        window.addEventListener('DOMContentLoaded', () => app.init());
-    </script>
-</body>
-</html>

@@ -20,6 +20,7 @@
         console.error('Supabase Setup Fehler:', err);
       }
 
+      // Speichert die Daten sauber im jsonb-Format
       async function saveToCloud(data) {
         if (!supabase) return;
         try {
@@ -29,7 +30,7 @@
         }
       }
 
-      // Ohne anfälliges .single() – absolut sicher gegen TypeError
+      // Lädt die jsonb-Daten fehlerfrei ohne .single()
       async function loadFromCloud() {
         if (!supabase) return null;
         try {

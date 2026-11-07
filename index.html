@@ -90,10 +90,10 @@
             </div>
         </div>
         <div class="flex items-center space-x-2">
-            <button onclick="window.app.openNewFolderModal()" class="px-2.5 py-1.5 rounded-md bg-army-800 border border-army-600 hover:bg-army-700 text-xs font-medium text-army-accent flex items-center gap-1.5 transition">
+            <button id="btn-new-folder" class="px-2.5 py-1.5 rounded-md bg-army-800 border border-army-600 hover:bg-army-700 text-xs font-medium text-army-accent flex items-center gap-1.5 transition">
                 <i class="fa-solid fa-folder-plus"></i> <span class="hidden sm:inline">Ordner</span>
             </button>
-            <button onclick="window.app.openNewCardModal()" class="px-3 py-1.5 rounded-md bg-army-500 hover:bg-army-600 border border-army-400 text-xs font-bold text-slate-950 flex items-center gap-1.5 shadow transition">
+            <button id="btn-new-card" class="px-3 py-1.5 rounded-md bg-army-500 hover:bg-army-600 border border-army-400 text-xs font-bold text-slate-950 flex items-center gap-1.5 shadow transition">
                 <i class="fa-solid fa-plus"></i> Karte
             </button>
         </div>
@@ -102,19 +102,19 @@
     <main id="main-content" class="flex-1 overflow-y-auto p-4 md:p-6 pb-24 relative"></main>
 
     <nav class="fixed bottom-0 left-0 right-0 bg-army-900/95 backdrop-blur-md border-t border-army-700/60 px-2 py-2 z-30 flex justify-around items-center shrink-0">
-        <button onclick="window.app.switchTab('decks')" id="nav-decks" class="nav-btn flex flex-col items-center py-1 px-3 rounded-lg text-army-accent">
+        <button data-tab="decks" class="nav-btn flex flex-col items-center py-1 px-3 rounded-lg text-army-accent">
             <i class="fa-solid fa-layer-group text-lg"></i>
             <span class="text-[10px] font-semibold mt-1">Ordner</span>
         </button>
-        <button onclick="window.app.switchTab('quiz')" id="nav-quiz" class="nav-btn flex flex-col items-center py-1 px-3 rounded-lg text-slate-400 hover:text-army-accent">
+        <button data-tab="quiz" class="nav-btn flex flex-col items-center py-1 px-3 rounded-lg text-slate-400 hover:text-army-accent">
             <i class="fa-solid fa-circle-play text-lg"></i>
             <span class="text-[10px] font-semibold mt-1">Abfrage</span>
         </button>
-        <button onclick="window.app.switchTab('docs')" id="nav-docs" class="nav-btn flex flex-col items-center py-1 px-3 rounded-lg text-slate-400 hover:text-army-accent">
+        <button data-tab="docs" class="nav-btn flex flex-col items-center py-1 px-3 rounded-lg text-slate-400 hover:text-army-accent">
             <i class="fa-solid fa-book-bookmark text-lg"></i>
             <span class="text-[10px] font-semibold mt-1">Dokumente</span>
         </button>
-        <button onclick="window.app.switchTab('stats')" id="nav-stats" class="nav-btn flex flex-col items-center py-1 px-3 rounded-lg text-slate-400 hover:text-army-accent">
+        <button data-tab="stats" class="nav-btn flex flex-col items-center py-1 px-3 rounded-lg text-slate-400 hover:text-army-accent">
             <i class="fa-solid fa-chart-line text-lg"></i>
             <span class="text-[10px] font-semibold mt-1">Statistik</span>
         </button>
@@ -125,9 +125,9 @@
         <div class="bg-army-900 border border-army-600 rounded-xl max-w-md w-full p-5 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-army-700/60 pb-3">
                 <h3 class="text-base font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-folder-plus text-army-accent"></i> Neuer Lern-Ordner</h3>
-                <button onclick="window.app.closeModal('modal-folder')" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+                <button id="close-modal-folder" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <form id="form-folder" onsubmit="window.app.saveFolder(event)" class="space-y-4">
+            <form id="form-folder" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-army-accent mb-1">Ordnername</label>
                     <input type="text" id="folder-name" required placeholder="z.B. StG77 A1 MOD Technik" class="w-full bg-army-800 border border-army-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-army-accent">
@@ -142,7 +142,7 @@
                     </select>
                 </div>
                 <div class="flex justify-end gap-2 pt-2 border-t border-army-700/60">
-                    <button type="button" onclick="window.app.closeModal('modal-folder')" class="px-4 py-2 rounded-lg bg-army-800 text-xs font-semibold text-slate-300">Abbrechen</button>
+                    <button type="button" id="cancel-modal-folder" class="px-4 py-2 rounded-lg bg-army-800 text-xs font-semibold text-slate-300">Abbrechen</button>
                     <button type="submit" class="px-4 py-2 rounded-lg bg-army-500 text-xs font-bold text-slate-950">Erstellen</button>
                 </div>
             </form>
@@ -154,9 +154,9 @@
         <div class="bg-army-900 border border-army-600 rounded-xl max-w-lg w-full p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-army-700/60 pb-3">
                 <h3 class="text-base font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-square-plus text-army-accent"></i> Karteikarte Erstellen</h3>
-                <button onclick="window.app.closeModal('modal-card')" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+                <button id="close-modal-card" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <form id="form-card" onsubmit="window.app.saveCard(event)" class="space-y-4">
+            <form id="form-card" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-army-accent mb-1">Ziel-Ordner</label>
                     <select id="card-folder-id" required class="w-full bg-army-800 border border-army-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-army-accent"></select>
@@ -170,7 +170,7 @@
                     <textarea id="card-back" required rows="3" class="w-full bg-army-800 border border-army-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-army-accent"></textarea>
                 </div>
                 <div class="flex justify-end gap-2 pt-2 border-t border-army-700/60">
-                    <button type="button" onclick="window.app.closeModal('modal-card')" class="px-4 py-2 rounded-lg bg-army-800 text-xs font-semibold text-slate-300">Abbrechen</button>
+                    <button type="button" id="cancel-modal-card" class="px-4 py-2 rounded-lg bg-army-800 text-xs font-semibold text-slate-300">Abbrechen</button>
                     <button type="submit" class="px-4 py-2 rounded-lg bg-army-500 text-xs font-bold text-slate-950">Speichern</button>
                 </div>
             </form>
@@ -202,10 +202,32 @@
                 } catch (e) {
                     console.log('Verwende lokale Standarddaten.');
                 }
+                this.initEvents();
             }
 
             async syncToCloud() {
                 await window.saveToCloud({ folders: this.folders, cards: this.cards, documents: this.documents });
+            }
+
+            initEvents() {
+                // Navigation
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.addEventListener('click', () => this.switchTab(btn.getAttribute('data-tab')));
+                });
+
+                // Modals öffnen
+                document.getElementById('btn-new-folder').addEventListener('click', () => this.openNewFolderModal());
+                document.getElementById('btn-new-card').addEventListener('click', () => this.openNewCardModal());
+
+                // Modals schließen
+                document.getElementById('close-modal-folder').addEventListener('click', () => this.closeModal('modal-folder'));
+                document.getElementById('cancel-modal-folder').addEventListener('click', () => this.closeModal('modal-folder'));
+                document.getElementById('close-modal-card').addEventListener('click', () => this.closeModal('modal-card'));
+                document.getElementById('cancel-modal-card').addEventListener('click', () => this.closeModal('modal-card'));
+
+                // Formulare abschicken
+                document.getElementById('form-folder').addEventListener('submit', (e) => this.saveFolder(e));
+                document.getElementById('form-card').addEventListener('submit', (e) => this.saveCard(e));
             }
 
             switchTab(tab) {
@@ -214,7 +236,7 @@
                     btn.classList.remove('text-army-accent', 'bg-army-800/50');
                     btn.classList.add('text-slate-400');
                 });
-                const activeNav = document.getElementById(`nav-${tab}`);
+                const activeNav = document.querySelector(`[data-tab="${tab}"]`);
                 if (activeNav) {
                     activeNav.classList.add('text-army-accent', 'bg-army-800/50');
                     activeNav.classList.remove('text-slate-400');
@@ -228,7 +250,7 @@
             }
 
             renderDecksView(container) {
-                let html = `<div class="max-w-4xl mx-auto space-y-4"><div class="flex justify-between items-center"><h2 class="text-xl font-bold uppercase">Ordner</h2><button onclick="window.app.openNewFolderModal()" class="px-3 py-2 bg-army-700 rounded text-xs font-semibold">Neuer Ordner</button></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+                let html = `<div class="max-w-4xl mx-auto space-y-4"><div class="flex justify-between items-center"><h2 class="text-xl font-bold uppercase">Ordner</h2><button id="inline-new-folder" class="px-3 py-2 bg-army-700 rounded text-xs font-semibold text-army-accent">Neuer Ordner</button></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
                 if (!this.folders || this.folders.length === 0) {
                     html += `<p class="text-slate-400 text-sm">Keine Ordner vorhanden.</p>`;
                 } else {
@@ -240,12 +262,18 @@
                                     <h3 class="font-bold text-slate-100">${this.escapeHtml(f.name)}</h3>
                                     <span class="text-xs text-slate-400">${count} Karten</span>
                                 </div>
-                                <button onclick="window.app.startQuizForFolder('${f.id}')" class="px-3 py-1 bg-army-600 rounded text-xs font-bold text-white">Lernen</button>
+                                <button data-start-quiz="${f.id}" class="quiz-btn px-3 py-1 bg-army-600 rounded text-xs font-bold text-white">Lernen</button>
                             </div>
                         `;
                     });
                 }
                 container.innerHTML = html + `</div></div>`;
+
+                // Events für dynamische Buttons in der Ansicht
+                document.getElementById('inline-new-folder').addEventListener('click', () => this.openNewFolderModal());
+                document.querySelectorAll('.quiz-btn').forEach(btn => {
+                    btn.addEventListener('click', () => this.startQuizForFolder(btn.getAttribute('data-start-quiz')));
+                });
             }
 
             renderQuizView(container) {
@@ -262,15 +290,18 @@
                 container.innerHTML = `
                     <div class="max-w-xl mx-auto space-y-4">
                         <div class="text-xs font-mono text-army-accent text-center">Karte ${this.quizIndex + 1} von ${this.quizQueue.length}</div>
-                        <div onclick="window.app.flipQuizCard()" class="bg-army-900 border border-army-700 rounded-xl p-8 min-h-[220px] flex items-center justify-center text-center cursor-pointer shadow-lg hover:border-army-accent transition">
+                        <div id="quiz-card-box" class="bg-army-900 border border-army-700 rounded-xl p-8 min-h-[220px] flex items-center justify-center text-center cursor-pointer shadow-lg hover:border-army-accent transition">
                             <p class="text-lg font-medium text-slate-100">${this.escapeHtml(this.quizFlipped ? card.back : card.front)}</p>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
-                            <button onclick="window.app.flipQuizCard()" class="py-3 bg-army-800 border border-army-700 hover:bg-army-700 rounded-lg text-xs font-bold text-slate-200">Umdrehen</button>
-                            <button onclick="window.app.answerQuiz()" class="py-3 bg-army-500 hover:bg-army-600 rounded-lg text-xs font-bold text-slate-950 shadow">Nächste Karte</button>
+                            <button id="btn-flip" class="py-3 bg-army-800 border border-army-700 hover:bg-army-700 rounded-lg text-xs font-bold text-slate-200">Umdrehen</button>
+                            <button id="btn-next-card" class="py-3 bg-army-500 hover:bg-army-600 rounded-lg text-xs font-bold text-slate-950 shadow">Nächste Karte</button>
                         </div>
                     </div>
                 `;
+                document.getElementById('quiz-card-box').addEventListener('click', () => this.flipQuizCard());
+                document.getElementById('btn-flip').addEventListener('click', () => this.flipQuizCard());
+                document.getElementById('btn-next-card').addEventListener('click', () => this.answerQuiz());
             }
 
             renderDocsView(container) { 
@@ -354,9 +385,10 @@
             escapeHtml(str) { return String(str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
         }
 
-        // Global zugänglich machen, damit Buttons app finden
-        window.app = new App();
-        window.addEventListener('DOMContentLoaded', () => window.app.init());
+        window.addEventListener('DOMContentLoaded', () => {
+            window.app = new App();
+            window.app.init();
+        });
     </script>
 </body>
 </html>

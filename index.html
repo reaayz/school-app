@@ -8,23 +8,27 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-      const SUPABASE_URL = 'https://axhvkrzuwczdkccxxhmo.supabase.co';
-      const SUPABASE_KEY = 'sb_publishable__G6SQye1XgItYVtFfqU2Xw_naxxqC7n';
+      // Global fixiertes Supabase Setup
+      window.SUPABASE_URL = 'https://axhvkrzuwczdkccxxhmo.supabase.co';
+      window.SUPABASE_KEY = 'sb_publishable__G6SQye1XgItYVtFfqU2Xw_naxxqC7n';
       
-      let supabase = null;
+      window.supabaseClient = null;
       try {
         if (window.supabase) {
-          supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+          window.supabaseClient = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
         }
       } catch (err) {
         console.error('Supabase Setup Fehler:', err);
       }
 
       window.saveToCloud = async function(data) {
-        if (!supabase) return;
+        if (!window.supabaseClient) {
+          console.error('Supabase Client nicht initialisiert');
+          return;
+        }
         try {
-          const { error } = await supabase.from('app_data').upsert({ id: 'user_app_state', content: data });
-          if (error) console.error('Supabase Schreibfehler:', error);
+          const { error } = await window.supabaseClient.from('app_data').upsert({ id: 'user_app_state', content: data });
+          if (error) console.error('Supabase Schreibfehler:', error.message);
           else console.log('Erfolgreich in Cloud gespeichert!');
         } catch (err) {
           console.error('Cloud Sync Fehler:', err);
@@ -32,9 +36,9 @@
       };
 
       window.loadFromCloud = async function() {
-        if (!supabase) return null;
+        if (!window.supabaseClient) return null;
         try {
-          const { data, error } = await supabase.from('app_data').select('content').eq('id', 'user_app_state');
+          const { data, error } = await window.supabaseClient.from('app_data').select('content').eq('id', 'user_app_state');
           if (error || !data || data.length === 0) return null;
           return data[0].content;
         } catch (err) {
@@ -60,7 +64,7 @@
     <header class="bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center justify-between shadow-lg z-20 shrink-0">
         <div class="flex items-center space-x-3">
             <div class="w-9 h-9 rounded-lg bg-emerald-900/40 border border-emerald-500/50 flex items-center justify-center">
-                <i class="fa-solid fa-shield-halved text-emerald-400 text-lg"></i>
+                <i class="fa-solid font-bold fa-shield-halved text-emerald-400 text-lg"></i>
             </div>
             <div>
                 <h1 class="font-bold tracking-wider text-sm uppercase text-slate-100 flex items-center gap-2">
@@ -171,14 +175,12 @@
             }
 
             async init() {
-                // Versuche zuerst aus der Cloud zu laden
                 const cloudData = await window.loadFromCloud();
                 if (cloudData && Array.isArray(cloudData.folders) && cloudData.folders.length > 0) {
                     this.folders = cloudData.folders;
                     this.cards = cloudData.cards || [];
                     this.documents = cloudData.documents || [];
                 } else {
-                    // Fallback, falls Cloud leer ist: Standarddaten setzen und sofort in Cloud hochladen!
                     this.folders = [{ id: 'f_stg77', name: 'StG77 A1 MOD Technik', category: 'Waffenkunde' }];
                     this.cards = [{ id: 'c_1', folderId: 'f_stg77', front: '6 Hauptteile des StG77 A1 MOD?', back: '1. Lauf\n2. Gasdruckeinrichtung\n3. Verschluss\n4. Kolben\n5. Visiereinrichtung\n6. Gehäuse' }];
                     await this.syncToCloud();
@@ -282,7 +284,7 @@
 
             async forceSyncNow() {
                 await this.syncToCloud();
-                alert('Daten wurden erfolgreich in die Cloud übertragen!');
+                alert('Daten wurden erfolgreich in die Supabase-Cloud übertragen!');
             }
 
             openNewFolderModal() { 

@@ -29,12 +29,13 @@
         }
       }
 
+      // Ohne anfälliges .single() – absolut sicher gegen TypeError
       async function loadFromCloud() {
         if (!supabase) return null;
         try {
-          const { data, error } = await supabase.from('app_data').select('content').eq('id', 'user_app_state').single();
-          if (error || !data) return null;
-          return data.content;
+          const { data, error } = await supabase.from('app_data').select('content').eq('id', 'user_app_state');
+          if (error || !data || data.length === 0) return null;
+          return data[0].content;
         } catch (err) {
           console.error('Cloud Sync Fehler beim Laden:', err);
           return null;

@@ -1,6 +1,28 @@
 <!DOCTYPE html>
 <html lang="de" class="h-full bg-slate-950 text-slate-100">
 <head>
+    <!-- Supabase Bibliothek -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  // Trage hier deine Supabase-Daten ein:
+    
+  const SUPABASE_URL = 'https://axhvkrzuwczdkccxxhmo.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable__G6SQye1XgItYVtFfqU2Xw_naxxqC7n';
+  
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // Daten in die Cloud speichern
+  async function saveToCloud(data) {
+    await supabase.from('app_data').upsert({ id: 'user_app_state', content: data });
+  }
+
+  // Daten aus der Cloud laden
+  async function loadFromCloud() {
+    const { data } = await supabase.from('app_data').select('content').eq('id', 'user_app_state').single();
+    return data ? data.content : null;
+  }
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ÖBH Lern- & Taktikportal</title>

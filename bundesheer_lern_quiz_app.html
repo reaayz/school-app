@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="de" class="h-full bg-slate-950 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>ÖBH Lern- & Taktikportal</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        army: {
+                            900: '#1a2218',
+                            800: '#283424',
+                            700: '#394934',
+                            600: '#4c6145',
+                            500: '#5e7955',
+                            accent: '#82a373',
+                            highlight: '#d4e157',
+                            gold: '#c5a059',
+                            dark: '#0f140e'
+                        }
+                    },
+                    fontFamily: {
+                        mono: ['JetBrains Mono', 'Courier New', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Mobile Specific & Custom Touch Styling */
+        body {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        /* Custom Scrollbar for Tactical feel */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f140e;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #394934;
+            border-radius: 3px;
+        }
+        /* Flashcard 3D Flip Effects */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+        .camouflage-pattern {
+            background-color: #1a2218;
+            background-image: radial-gradient(#283424 20%, transparent 20%), radial-gradient(#394934 20%, transparent 20%);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            opacity: 0.85;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col font-sans overflow-hidden bg-army-dark selection:bg-army-accent selection:text-black">
+
+    <!-- Top Header Bar -->
+    <header class="bg-army-900 border-b border-army-700/50 px-4 py-3 flex items-center justify-between shadow-lg z-20 shrink-0">
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-lg bg-army-700 border border-army-accent flex items-center justify-center shadow-inner">
+                <i class="fa-solid font-bold fa-shield-halved text-army-highlight text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-bold tracking-wider text-sm uppercase text-slate-100 flex items-center gap-2">
+                    ÖBH LERN-DOCK
+                    <span class="text-[10px] bg-army-800 text-army-accent border border-army-600/50 px-1.5 py-0.5 rounded tracking-normal">OFFLINE</span>
+                </h1>
+                <p class="text-[11px] text-army-accent/80 font-mono">BUNDESHEER KNOWLEDGE SYSTEM</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-2">
+            <button onclick="app.openNewFolderModal()" class="px-2.5 py-1.5 rounded-md bg-army-800 border border-army-600 hover:bg-army-700 text-xs font-medium text-army-accent flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-folder-plus"></i> <span class="hidden sm:inline">Ordner</span>
+            </button>
+            <button onclick="app.openNewCardModal()" class="px-3 py-1.5 rounded-md bg-army-500 hover:bg-army-600 border border-army-400 text-xs font-bold text-slate-950 flex items-center gap-1.5 shadow transition">
+                <i class="fa-solid fa-plus"></i> Karte
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Dynamic View Area -->
+    <main id="main-content" class="flex-1 overflow-y-auto p-4 md:p-6 pb-24 relative">
+        <!-- Views rendered here dynamically by JS -->
+    </main>
+
+    <!-- Bottom Mobile Navigation Bar (iPhone Optimized) -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-army-900/95 backdrop-blur-md border-t border-army-700/60 px-2 py-2 z-30 flex justify-around items-center shrink-0">
+        <button onclick="app.switchTab('decks')" id="nav-decks" class="nav-btn flex flex-col items-center py-1 px-3 rounded-lg text-army-accent">
+            <i class="fa-solid fa-layer-group text-lg"></i>
+            <span class="text-[10px] font-semibold mt-1">Ordner</span>
+        </button>
+        <button onclick="app.switchTab('quiz')" id="nav-quiz" class="nav-btn flex flex-col items-center py-1 px-3 rounded-lg text-slate-400 hover:text-army-accent">
+            <i class="fa-solid fa-circle-play text-lg"></i>
+            <span class="text-[10px] font-semibold mt-1">Abfrage</span>
+        </button>
+        <button onclick="app.switchTab('docs')" id="nav-docs" class="nav-btn flex flex-col items-center py-1 px-3 rounded-lg text-slate-400 hover:text-army-accent">
+            <i class="fa-solid fa-book-bookmark text-lg"></i>
+            <span class="text-[10px] font-semibold mt-1">Dokumente</span>
+        </button>
+        <button onclick="app.switchTab('stats')" id="nav-stats" class="nav-btn flex flex-col items-center py-1 px-3 rounded-lg text-slate-400 hover:text-army-accent">
+            <i class="fa-solid fa-chart-line text-lg"></i>
+            <span class="text-[10px] font-semibold mt-1">Statistik</span>
+        </button>
+    </nav>
+
+    <!-- MODAL: CREATE / EDIT FOLDER -->
+    <div id="modal-folder" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-army-900 border border-army-600 rounded-xl max-w-md w-full p-5 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-army-700/60 pb-3">
+                <h3 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-folder-plus text-army-accent"></i> Neuer Lern-Ordner
+                </h3>
+                <button onclick="app.closeModal('modal-folder')" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-folder" onsubmit="app.saveFolder(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-army-accent mb-1">Ordnername</label>
+                    <input type="text" id="folder-name" required placeholder="z.B. Dienstgrade & Chargen" class="w-full bg-army-800 border border-army-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-army-accent">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-army-accent mb-1">Kategorie / Fachbereich</label>
+                    <select id="folder-category" class="w-full bg-army-800 border border-army-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-army-accent">
+                        <option value="Dienstgrade">Dienstgrade & Abzeichen</option>
+                        <option value="Waffenkunde">Waffenkunde & Schießen</option>
+                        <option value="Exerzierdienst">Exerzierdienst</option>
+                        <option value="Vorschriften">Vorschriften & Recht</option>
+                        <option value="Erste Hilfe">Sanitätsdienst / Erste Hilfe</option>
+                        <option value="Taktik">Taktik & Orientierung</option>
+                        <option value="Allgemein">Allgemein / Sonstiges</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-army-accent mb-1">Beschreibung (Optional)</label>
+                    <textarea id="folder-desc" rows="2" placeholder="Wichtige Lerninhalte für die Chargenausbildung..." class="w-full bg-army-800 border border-army-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-army-accent"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 pt-2 border-t border-army-700/60">
+                    <button type="button" onclick="app.closeModal('modal-folder')" class="px-4 py-2 rounded-lg bg-army-800 hover:bg-army-700 text-xs font-semibold text-slate-300">Abbrechen</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg bg-army-500 hover:bg-army-600 text-xs font-bold text-slate-950 shadow">Ordner Erstellen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: CREATE / EDIT FLASHCARD -->
+    <div id="modal-card" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-army-900 border border-army-600 rounded-xl max-w-lg w-full p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-army-700/60 pb-3">
+                <h3 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-square-plus text-army-accent"></i> Karteikarte Erstellen
+                </h3>
+                <button onclick="app.closeModal('modal-card')" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-card" onsubmit="app.saveCard(event)" class="space-y-4">
+                <input type="hidden" id="card-id">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-army-accent mb-1">Ziel-Ordner</label>
+                    <select id="card-folder-id" required class="w-full bg-army-800 border border-army-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-army-accent">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-army-accent mb-1">Vorderseite / Frage</label>
+                    <textarea id="card-front" required rows="2" placeholder="z.B. Wie lautet der Dienstgrad: 3 Sterne in Silber (gefällt) auf rotem Grund?" class="w-full bg-army-800 border border-army-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-army-accent"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-army-accent mb-1">Rückseite / Antwort</label>
+                    <textarea id="card-back" required rows="3" placeholder="z.B. Zugsführer (Zgf)" class="w-full bg-army-800 border border-army-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-army-accent"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-army-accent mb-1">Zusatz-Hinweis / Notiz (Optional)</label>
+                    <input type="text" id="card-hint" placeholder="z.B. Charge, Führungsebene Trupp" class="w-full bg-army-800 border border-army-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-army-accent">
+                </div>
+                
+                <!-- Image Attachment -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-army-accent mb-1">Bild anfügen (Grafik/Abzeichen/Foto)</label>
+                    <input type="file" id="card-image-input" accept="image/*" onchange="app.handleCardImageUpload(event)" class="hidden">
+                    <div class="flex items-center gap-3">
+                        <button type="button" onclick="document.getElementById('card-image-input').click()" class="px-3 py-2 bg-army-800 hover:bg-army-700 border border-army-700 rounded-lg text-xs font-medium text-army-accent flex items-center gap-2">
+                            <i class="fa-solid fa-camera"></i> Foto Auswählen
+                        </button>
+                        <button type="button" id="remove-card-img-btn" onclick="app.clearCardImagePreview()" class="hidden px-2 py-1 bg-red-900/50 hover:bg-red-800 text-red-300 text-xs rounded border border-red-700">
+                            Bild entfernen
+                        </button>
+                    </div>
+                    <!-- Image Preview -->
+                    <div id="card-image-preview-container" class="mt-2 hidden">
+                        <img id="card-image-preview" src="" alt="Vorschau" class="max-h-36 rounded-lg border border-army-600 object-contain bg-black">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2 border-t border-army-700/60">
+                    <button type="button" onclick="app.closeModal('modal-card')" class="px-4 py-2 rounded-lg bg-army-800 hover:bg-army-700 text-xs font-semibold text-slate-300">Abbrechen</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg bg-army-500 hover:bg-army-600 text-xs font-bold text-slate-950 shadow">Speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD DOCUMENT / NOTE -->
+    <div id="modal-doc" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-army-900 border border-army-600 rounded-xl max-w-lg w-full p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-army-700/60 pb-3">
+                <h3 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-file-circle-plus text-army-accent"></i> Dokument / Notiz ablegen
+                </h3>
+                <button onclick="app.closeModal('modal-doc')" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-doc" onsubmit="app.saveDocument(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-army-accent mb-1">Titel des Dokumentes</label>
+                    <input type="text" id="doc-title" required placeholder="z.B. Merkblatt Waffengattungen & Kaliber" class="w-full bg-army-800 border border-army-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-army-accent">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-army-accent mb-1">Kategorie</label>
+                    <select id="doc-category" class="w-full bg-army-800 border border-army-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-army-accent">
+                        <option value="Dienstgrade">Dienstgrade</option>
+                        <option value="Waffenkunde">Waffenkunde</option>
+                        <option value="Vorschriften">Vorschriften & Erläuterungen</option>
+                        <option value="Erste Hilfe">Erste Hilfe & Sanitätsdienst</option>
+                        <option value="Allgemein">Allgemeines</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-army-accent mb-1">Textinhalt / Notiz</label>
+                    <textarea id="doc-content" rows="4" placeholder="Füge hier wichtige Paragraphen, Notizen oder Regelungen ein..." class="w-full bg-army-800 border border-army-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-army-accent font-mono text-xs"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-army-accent mb-1">Datei / Foto anhängen (Optional)</label>
+                    <input type="file" id="doc-file-input" accept="image/*,application/pdf" onchange="app.handleDocFileUpload(event)" class="hidden">
+                    <button type="button" onclick="document.getElementById('doc-file-input').click()" class="px-3 py-2 bg-army-800 hover:bg-army-700 border border-army-700 rounded-lg text-xs font-medium text-army-accent flex items-center gap-2">
+                        <i class="fa-solid fa-paperclip"></i> Foto / PDF Auswählen
+                    </button>
+                    <span id="doc-file-name" class="text-xs text-slate-400 mt-1 block italic"></span>
+                </div>
+                <div class="flex justify-end gap-2 pt-2 border-t border-army-700/60">
+                    <button type="button" onclick="app.closeModal('modal-doc')" class="px-4 py-2 rounded-lg bg-army-800 hover:bg-army-700 text-xs font-semibold text-slate-300">Abbrechen</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg bg-army-500 hover:bg-army-600 text-xs font-bold text-slate-950 shadow">Dokument Speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION SYSTEM TOAST -->
+    <div id="toast" class="fixed top-4 right-4 bg-army-800 border border-army-accent text-slate-100 px-4 py-3 rounded-lg shadow-xl z-50 transform transition-all duration-300 translate-y-[-150%] opacity-0 flex items-center gap-3">
+        <i id="toast-icon" class="fa-solid fa-circle-info text-army-accent"></i>
+        <span id="toast-msg" class="text-xs font-medium"></span>
+    </div>
+
+    <!-- APPLICATION LOGIC & STORAGE SYSTEM -->
+    <script>
+        /**
+         * IndexedDB & Storage Handler for Offline persistence
+         */
+        class StorageManager {
+            constructor() {
+                this.dbName = 'ÖBH_LernApp_DB';
+                this.dbVersion = 1;
+                this.db = null;
+            }
+
+            async init() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(this.dbName, this.dbVersion);
+
+                    request.onupgradeneeded = (e) => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains('folders')) {
+                            db.createObjectStore('folders', { keyPath: 'id' });
+                        }
+                        if (!db.objectStoreNames.contains('cards')) {
+                            db.createObjectStore('cards', { keyPath: 'id' });
+                        }
+                        if (!db.objectStoreNames.contains('documents')) {
+                            db.createObjectStore('documents', { keyPath: 'id' });
+                        }
+                        if (!db.objectStoreNames.contains('stats')) {
+                            db.createObjectStore('stats', { keyPath: 'id' });
+                        }
+                    };
+
+                    request.onsuccess = (e) => {
+                        this.db = e.target.result;
+                        resolve();
+                    };
+
+                    request.onerror = (e) => reject('IndexedDB error: ' + e.target.errorCode);
+                });
+            }
+
+            async getAll(storeName) {
+                return new Promise((resolve, reject) => {
+                    const tx = this.db.transaction(storeName, 'readonly');
+                    const store = tx.objectStore(storeName);
+                    const req = store.getAll();
+                    req.onsuccess = () => resolve(req.result || []);
+                    req.onerror = () => reject(req.error);
+                });
+            }
+
+            async save(storeName, item) {
+                return new Promise((resolve, reject) => {
+                    const tx = this.db.transaction(storeName, 'readwrite');
+                    const store = tx.objectStore(storeName);
+                    const req = store.put(item);
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => reject(req.error);
+                });
+            }
+
+            async delete(storeName, id) {
+                return new Promise((resolve, reject) => {
+                    const tx = this.db.transaction(storeName, 'readwrite');
+                    const store = tx.objectStore(storeName);
+                    const req = store.delete(id);
+                    req.onsuccess = () => resolve();
+                    req.onerror = () => reject(req.error);
+                });
+            }
+        }
+
+        /**
+         * Main App Controller
+         */
+        class App {
+            constructor() {
+                this.storage = new StorageManager();
+                this.currentTab = 'decks';
+                this.folders = [];
+                this.cards = [];
+                this.documents = [];
+                this.stats = { totalLearned: 0, correctAnswers: 0, wrongAnswers: 0 };
+                
+                // Quiz state
+                this.quizQueue = [];
+                this.quizIndex = 0;
+                this.quizFlipped = false;
+                this.quizFilterFolder = 'all';
+
+                // Temporary storage for image uploads
+                this.tempCardImage = null;
+                this.tempDocFile = null;
+            }
+
+            async init() {
+                try {
+                    await this.storage.init();
+                    await this.loadInitialData();
+                    this.switchTab('decks');
+                } catch (err) {
+                    console.error('Initialization failed:', err);
+                    this.showToast('Fehler beim Laden der Datenbank', 'error');
+                }
+            }
+
+            async loadInitialData() {
+                this.folders = await this.storage.getAll('folders');
+                this.cards = await this.storage.getAll('cards');
+                this.documents = await this.storage.getAll('documents');
+                const statsData = await this.storage.getAll('stats');
+                
+                if (statsData.length > 0) {
+                    this.stats = statsData[0];
+                }
+
+                // Load default preset content if empty for first time user
+                if (this.folders.length === 0) {
+                    await this.seedPresetData();
+                }
+            }
+
+            async seedPresetData() {
+                const defaultFolder = {
+                    id: 'f_dienstgrade',
+                    name: 'Dienstgrade & Chargen',
+                    category: 'Dienstgrade',
+                    description: 'Österreichisches Bundesheer Chargen und Unteroffiziere',
+                    createdAt: Date.now()
+                };
+
+                const defaultCards = [
+                    {
+                        id: 'c_1',
+                        folderId: 'f_dienstgrade',
+                        front: 'Wie heißt der niedrigste Chargen-Dienstgrad beim ÖBH?',
+                        back: 'Gefreiter (Gfr) - 1 Silberner Streifen/Stern auf Dienstgradabzeichen.',
+                        hint: 'Chargenebene',
+                        imageData: null,
+                        box: 1,
+                        nextReview: Date.now()
+                    },
+                    {
+                        id: 'c_2',
+                        folderId: 'f_dienstgrade',
+                        front: 'Dienstgrad: 2 Silberne Sterne (gefällt)',
+                        back: 'Korporal (Kpl)',
+                        hint: 'Chargengruppe',
+                        imageData: null,
+                        box: 1,
+                        nextReview: Date.now()
+                    },
+                    {
+                        id: 'c_3',
+                        folderId: 'f_dienstgrade',
+                        front: 'Welche Dienstgradgruppe folgt direkt über den Chargen?',
+                        back: 'Die Unteroffiziere (Unterwachtmeister, Wachtmeister, etc.)',
+                        hint: 'Hierarchie',
+                        imageData: null,
+                        box: 1,
+                        nextReview: Date.now()
+                    }
+                ];
+
+                await this.storage.save('folders', defaultFolder);
+                for (const c of defaultCards) {
+                    await this.storage.save('cards', c);
+                }
+
+                this.folders = [defaultFolder];
+                this.cards = defaultCards;
+            }
+
+            switchTab(tab) {
+                this.currentTab = tab;
+                
+                // Active styles on navigation buttons
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.classList.remove('text-army-accent', 'bg-army-800/50');
+                    btn.classList.add('text-slate-400');
+                });
+                const activeNav = document.getElementById(`nav-${tab}`);
+                if (activeNav) {
+                    activeNav.classList.add('text-army-accent', 'bg-army-800/50');
+                    activeNav.classList.remove('text-slate-400');
+                }
+
+                const main = document.getElementById('main-content');
+                
+                switch (tab) {
+                    case 'decks':
+                        this.renderDecksView(main);
+                        break;
+                    case 'quiz':
+                        this.renderQuizView(main);
+                        break;
+                    case 'docs':
+                        this.renderDocsView(main);
+                        break;
+                    case 'stats':
+                        this.renderStatsView(main);
+                        break;
+                }
+            }
+
+            /* =========================================================================
+               DECKS / FOLDER VIEW
+               ========================================================================= */
+            renderDecksView(container) {
+                let html = `
+                    <div class="max-w-4xl mx-auto space-y-6">
+                        <!-- Header Banner -->
+                        <div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-army-900 via-army-800 to-army-900 border border-army-700/60 p-5 shadow-xl">
+                            <div class="camouflage-pattern absolute inset-0 pointer-events-none"></div>
+                            <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div>
+                                    <h2 class="text-xl font-bold text-slate-100 uppercase tracking-wide flex items-center gap-2">
+                                        <i class="fa-solid fa-folder-tree text-army-accent"></i> Ordner übersicht
+                                    </h2>
+                                    <p class="text-xs text-slate-300 mt-1">Verwalte deine Fachbereiche und Erstelle Karteikarten zum Abfragen.</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="app.openNewFolderModal()" class="px-3 py-2 rounded-lg bg-army-700 border border-army-500 hover:bg-army-600 text-xs font-semibold text-slate-100 flex items-center gap-1.5 transition">
+                                        <i class="fa-solid fa-folder-plus"></i> Neuer Ordner
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Folder List Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                `;
+
+                if (this.folders.length === 0) {
+                    html += `
+                        <div class="col-span-full text-center py-12 bg-army-900/50 border border-dashed border-army-700 rounded-xl p-6">
+                            <i class="fa-solid fa-folder-open text-4xl text-army-700 mb-3"></i>
+                            <p class="text-slate-400 text-sm">Noch keine Ordner vorhanden.</p>
+                            <button onclick="app.openNewFolderModal()" class="mt-3 px-4 py-2 bg-army-600 hover:bg-army-500 text-xs font-bold rounded-lg text-slate-100">
+                                Ersten Ordner anlegen
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    this.folders.forEach(folder => {
+                        const folderCards = this.cards.filter(c => c.folderId === folder.id);
+                        html += `
+                            <div class="bg-army-900/90 border border-army-700/80 rounded-xl p-4 flex flex-col justify-between shadow-md hover:border-army-500/70 transition">
+                                <div class="space-y-2">
+                                    <div class="flex items-start justify-between gap-2">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-10 h-10 rounded-lg bg-army-800 border border-army-600 flex items-center justify-center text-army-accent">
+                                                <i class="${this.getCategoryIcon(folder.category)} text-lg"></i>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-bold text-slate-100 text-base leading-snug">${this.escapeHtml(folder.name)}</h3>
+                                                <span class="inline-block text-[10px] uppercase font-mono px-2 py-0.5 bg-army-800 border border-army-700 rounded text-army-accent">
+                                                    ${folder.category}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <button onclick="app.deleteFolder('${folder.id}')" class="text-slate-500 hover:text-red-400 p-1 text-sm transition" title="Ordner löschen">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </div>
+                                    <p class="text-xs text-slate-400 line-clamp-2">${this.escapeHtml(folder.description || 'Keine Beschreibung')}</p>
+                                </div>
+
+                                <div class="mt-4 pt-3 border-t border-army-800/80 flex items-center justify-between text-xs">
+                                    <span class="text-slate-400 font-mono">
+                                        <i class="fa-solid fa-clone text-army-accent mr-1"></i> ${folderCards.length} Karte(n)
+                                    </span>
+                                    <div class="flex items-center gap-2">
+                                        <button onclick="app.openNewCardModal('${folder.id}')" class="px-2.5 py-1.5 rounded bg-army-800 hover:bg-army-700 text-army-accent border border-army-700 font-semibold text-[11px] flex items-center gap-1">
+                                            <i class="fa-solid fa-plus"></i> Karte
+                                        </button>
+                                        <button onclick="app.startQuizForFolder('${folder.id}')" class="px-3 py-1.5 rounded bg-army-600 hover:bg-army-500 text-slate-100 font-bold text-[11px] flex items-center gap-1 shadow">
+                                            <i class="fa-solid fa-play"></i> Lernen
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                html += `
+                        </div>
+                    </div>
+                `;
+
+                container.innerHTML = html;
+            }
+
+            /* =========================================================================
+               QUIZ & LEARNING VIEW (Spaced Repetition Flashcards)
+               ========================================================================= */
+            renderQuizView(container) {
+                // Check if quiz needs initiation
+                if (this.quizQueue.length === 0) {
+                    this.setupQuizQueue();
+                }
+
+                if (this.quizQueue.length === 0) {
+                    container.innerHTML = `
+                        <div class="max-w-md mx-auto text-center py-12 px-4 bg-army-900 border border-army-700 rounded-2xl shadow-xl">
+                            <div class="w-16 h-16 bg-army-800 border border-army-600 text-army-highlight rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-100 mb-2">Keine Karten zur Abfrage verfügbar!</h3>
+                            <p class="text-xs text-slate-400 mb-6">Erstelle zuerst Karteikarten in deinen Ordnern, um den Abfragemodus zu starten.</p>
+                            <button onclick="app.openNewCardModal()" class="px-4 py-2.5 bg-army-500 hover:bg-army-600 font-bold text-xs text-slate-950 rounded-xl shadow">
+                                <i class="fa-solid fa-plus mr-1"></i> Karteikarte anlegen
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const currentCard = this.quizQueue[this.quizIndex];
+
+                let html = `
+                    <div class="max-w-md mx-auto space-y-4">
+                        <!-- Quiz Header & Progress Bar -->
+                        <div class="flex items-center justify-between text-xs font-mono text-slate-400 px-1">
+                            <span>FORTSCHRITT: ${this.quizIndex + 1} / ${this.quizQueue.length}</span>
+                            <div class="flex items-center gap-2">
+                                <select onchange="app.changeQuizFilter(this.value)" class="bg-army-800 border border-army-700 text-army-accent text-xs rounded px-2 py-1 focus:outline-none">
+                                    <option value="all">Alle Ordner</option>
+                                    ${this.folders.map(f => `<option value="${f.id}" ${this.quizFilterFolder === f.id ? 'selected' : ''}>${this.escapeHtml(f.name)}</option>`).join('')}
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar Line -->
+                        <div class="w-full bg-army-900 border border-army-800 rounded-full h-2 overflow-hidden">
+                            <div class="bg-army-accent h-full transition-all duration-300" style="width: ${((this.quizIndex + 1) / this.quizQueue.length) * 100}%"></div>
+                        </div>
+
+                        <!-- Flashcard Flip Box -->
+                        <div onclick="app.flipQuizCard()" class="perspective-1000 min-h-[320px] cursor-pointer">
+                            <div id="quiz-card-inner" class="relative w-full h-full min-h-[320px] rounded-2xl bg-army-900 border-2 border-army-600/80 shadow-2xl transition-transform duration-500 transform-style-3d ${this.quizFlipped ? 'rotate-y-180' : ''}">
+                                
+                                <!-- Card Front Side -->
+                                <div class="absolute inset-0 w-full h-full p-6 flex flex-col justify-between backface-hidden rounded-2xl bg-army-900">
+                                    <div class="flex items-center justify-between text-xs text-army-accent border-b border-army-800 pb-2">
+                                        <span class="font-mono uppercase"><i class="fa-solid fa-question-circle"></i> FRAGE</span>
+                                        <span class="text-[10px] bg-army-800 px-2 py-0.5 rounded text-slate-400">Tippen zum Drehen</span>
+                                    </div>
+                                    
+                                    <div class="my-auto py-4 text-center space-y-4">
+                                        <p class="text-base font-semibold text-slate-100 leading-relaxed">${this.escapeHtml(currentCard.front)}</p>
+                                        
+                                        ${currentCard.imageData ? `
+                                            <div class="flex justify-center">
+                                                <img src="${currentCard.imageData}" class="max-h-40 max-w-full rounded-lg border border-army-700 object-contain shadow" alt="Grafik">
+                                            </div>
+                                        ` : ''}
+
+                                        ${currentCard.hint ? `
+                                            <p class="text-xs text-army-accent/70 italic font-mono">Hinweis: ${this.escapeHtml(currentCard.hint)}</p>
+                                        ` : ''}
+                                    </div>
+
+                                    <div class="text-center text-xs text-slate-500 font-mono pt-2 border-t border-army-800/60">
+                                        <i class="fa-solid fa-rotate text-army-accent"></i> Tippe auf die Karte zum Aufdecken
+                                    </div>
+                                </div>
+
+                                <!-- Card Back Side (Answer) -->
+                                <div class="absolute inset-0 w-full h-full p-6 flex flex-col justify-between backface-hidden rotate-y-180 rounded-2xl bg-army-800 border-2 border-army-500">
+                                    <div class="flex items-center justify-between text-xs text-army-highlight border-b border-army-700 pb-2">
+                                        <span class="font-mono uppercase"><i class="fa-solid fa-lightbulb"></i> ANTWORT</span>
+                                        <span class="text-[10px] bg-army-900 px-2 py-0.5 rounded text-army-accent">Lösung</span>
+                                    </div>
+
+                                    <div class="my-auto py-4 text-center space-y-3">
+                                        <p class="text-base font-bold text-slate-100 leading-relaxed">${this.escapeHtml(currentCard.back)}</p>
+                                    </div>
+
+                                    <div class="text-center text-xs text-army-accent font-mono pt-2 border-t border-army-700/60">
+                                        Bewerte jetzt deine Antwort unten:
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Quiz Action Controls -->
+                        <div class="grid grid-cols-2 gap-3 pt-2">
+                            <button onclick="app.answerQuiz(false)" class="py-3 px-4 bg-red-950/80 hover:bg-red-900 border border-red-700/70 text-red-200 font-bold text-xs rounded-xl shadow-lg flex items-center justify-center gap-2 active:scale-95 transition">
+                                <i class="fa-solid fa-xmark text-lg"></i> Falsch / Nochmals
+                            </button>
+                            <button onclick="app.answerQuiz(true)" class="py-3 px-4 bg-army-600 hover:bg-army-500 border border-army-400 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg flex items-center justify-center gap-2 active:scale-95 transition">
+                                <i class="fa-solid fa-check text-lg"></i> Gewusst / Richtig
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                container.innerHTML = html;
+            }
+
+            setupQuizQueue() {
+                if (this.quizFilterFolder && this.quizFilterFolder !== 'all') {
+                    this.quizQueue = this.cards.filter(c => c.folderId === this.quizFilterFolder);
+                } else {
+                    this.quizQueue = [...this.cards];
+                }
+                // Shuffle cards for testing
+                this.quizQueue.sort(() => Math.random() - 0.5);
+                this.quizIndex = 0;
+                this.quizFlipped = false;
+            }
+
+            changeQuizFilter(folderId) {
+                this.quizFilterFolder = folderId;
+                this.setupQuizQueue();
+                this.renderQuizView(document.getElementById('main-content'));
+            }
+
+            startQuizForFolder(folderId) {
+                this.quizFilterFolder = folderId;
+                this.setupQuizQueue();
+                this.switchTab('quiz');
+            }
+
+            flipQuizCard() {
+                this.quizFlipped = !this.quizFlipped;
+                const cardInner = document.getElementById('quiz-card-inner');
+                if (cardInner) {
+                    cardInner.classList.toggle('rotate-y-180', this.quizFlipped);
+                }
+            }
+
+            async answerQuiz(isCorrect) {
+                if (this.quizQueue.length === 0) return;
+
+                const currentCard = this.quizQueue[this.quizIndex];
+
+                // Update Stats
+                this.stats.totalLearned = (this.stats.totalLearned || 0) + 1;
+                if (isCorrect) {
+                    this.stats.correctAnswers = (this.stats.correctAnswers || 0) + 1;
+                    currentCard.box = (currentCard.box || 1) + 1;
+                    this.showToast('Super! Weiter so!', 'success');
+                } else {
+                    this.stats.wrongAnswers = (this.stats.wrongAnswers || 0) + 1;
+                    currentCard.box = 1;
+                    this.showToast('Wiederholung eingeplant.', 'info');
+                }
+
+                await this.storage.save('cards', currentCard);
+                await this.storage.save('stats', { id: 'main_stats', ...this.stats });
+
+                // Next Card logic
+                this.quizIndex++;
+                this.quizFlipped = false;
+
+                if (this.quizIndex >= this.quizQueue.length) {
+                    // Completed batch
+                    this.showToast('Abfrage-Durchgang beendet!', 'success');
+                    this.quizQueue = [];
+                }
+
+                this.renderQuizView(document.getElementById('main-content'));
+            }
+
+            /* =========================================================================
+               DOCUMENTS & NOTES VIEW
+               ========================================================================= */
+            renderDocsView(container) {
+                let html = `
+                    <div class="max-w-4xl mx-auto space-y-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h2 class="text-xl font-bold text-slate-100 uppercase tracking-wide flex items-center gap-2">
+                                    <i class="fa-solid fa-book-bookmark text-army-accent"></i> Dokumentenspeicher
+                                </h2>
+                                <p class="text-xs text-slate-400 mt-0.5">Wichtige Befehle, Vorschriften & Notizen geordnet ablegen.</p>
+                            </div>
+                            <button onclick="app.openNewDocModal()" class="px-3 py-2 rounded-lg bg-army-500 hover:bg-army-600 text-xs font-bold text-slate-950 flex items-center gap-1.5 shadow">
+                                <i class="fa-solid fa-plus"></i> Dokument
+                            </button>
+                        </div>
+
+                        <div class="space-y-4">
+                `;
+
+                if (this.documents.length === 0) {
+                    html += `
+                        <div class="text-center py-12 bg-army-900/50 border border-dashed border-army-700 rounded-xl p-6">
+                            <i class="fa-solid fa-file-circle-xmark text-4xl text-army-700 mb-3"></i>
+                            <p class="text-slate-400 text-sm">Noch keine Notizen oder Dokumente vorhanden.</p>
+                            <button onclick="app.openNewDocModal()" class="mt-3 px-4 py-2 bg-army-700 hover:bg-army-600 text-xs font-bold rounded-lg text-slate-100">
+                                Dokument anlegen
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    this.documents.forEach(doc => {
+                        html += `
+                            <div class="bg-army-900 border border-army-700/80 rounded-xl p-4 shadow-lg space-y-3">
+                                <div class="flex items-start justify-between gap-2 border-b border-army-800 pb-2">
+                                    <div>
+                                        <h3 class="font-bold text-slate-100 text-base">${this.escapeHtml(doc.title)}</h3>
+                                        <span class="inline-block text-[10px] font-mono uppercase bg-army-800 border border-army-700 px-2 py-0.5 rounded text-army-accent mt-1">
+                                            ${doc.category}
+                                        </span>
+                                    </div>
+                                    <button onclick="app.deleteDocument('${doc.id}')" class="text-slate-500 hover:text-red-400 p-1 text-sm transition">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </div>
+                                
+                                ${doc.content ? `
+                                    <p class="text-xs text-slate-300 font-mono whitespace-pre-wrap bg-army-950/70 p-3 rounded-lg border border-army-800/80 leading-relaxed">${this.escapeHtml(doc.content)}</p>
+                                ` : ''}
+
+                                ${doc.fileData ? `
+                                    <div class="pt-2">
+                                        ${doc.fileType && doc.fileType.startsWith('image/') ? `
+                                            <a href="${doc.fileData}" target="_blank" class="block">
+                                                <img src="${doc.fileData}" class="max-h-48 rounded-lg border border-army-700 object-cover" alt="Anhang">
+                                            </a>
+                                        ` : `
+                                            <a href="${doc.fileData}" download="${doc.fileName || 'Dokument'}" class="inline-flex items-center gap-2 text-xs text-army-accent bg-army-800 px-3 py-2 rounded-lg border border-army-700 hover:bg-army-700">
+                                                <i class="fa-solid fa-paperclip"></i> Anhang herunterladen (${doc.fileName || 'Datei'})
+                                            </a>
+                                        `}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    });
+                }
+
+                html += `
+                        </div>
+                    </div>
+                `;
+
+                container.innerHTML = html;
+            }
+
+            /* =========================================================================
+               STATISTICS & OVERVIEW VIEW
+               ========================================================================= */
+            renderStatsView(container) {
+                const totalCards = this.cards.length;
+                const totalFolders = this.folders.length;
+                const correct = this.stats.correctAnswers || 0;
+                const wrong = this.stats.wrongAnswers || 0;
+                const totalAnswered = correct + wrong;
+                const accuracy = totalAnswered > 0 ? Math.round((correct / totalAnswered) * 100) : 0;
+
+                let html = `
+                    <div class="max-w-4xl mx-auto space-y-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-100 uppercase tracking-wide flex items-center gap-2">
+                                <i class="fa-solid fa-chart-column text-army-accent"></i> Auswertung & Statistik
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-0.5">Übersicht über deinen bisherigen Lernerfolg.</p>
+                        </div>
+
+                        <!-- Top KPI Cards -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div class="bg-army-900 border border-army-700/80 p-4 rounded-xl text-center shadow">
+                                <div class="text-2xl font-black text-army-accent font-mono">${totalFolders}</div>
+                                <div class="text-[11px] font-semibold text-slate-400 mt-1 uppercase">Ordner</div>
+                            </div>
+                            <div class="bg-army-900 border border-army-700/80 p-4 rounded-xl text-center shadow">
+                                <div class="text-2xl font-black text-army-highlight font-mono">${totalCards}</div>
+                                <div class="text-[11px] font-semibold text-slate-400 mt-1 uppercase">Karteikarten</div>
+                            </div>
+                            <div class="bg-army-900 border border-army-700/80 p-4 rounded-xl text-center shadow">
+                                <div class="text-2xl font-black text-emerald-400 font-mono">${correct}</div>
+                                <div class="text-[11px] font-semibold text-slate-400 mt-1 uppercase">Richtig</div>
+                            </div>
+                            <div class="bg-army-900 border border-army-700/80 p-4 rounded-xl text-center shadow">
+                                <div class="text-2xl font-black text-red-400 font-mono">${accuracy}%</div>
+                                <div class="text-[11px] font-semibold text-slate-400 mt-1 uppercase">Erfolgsquote</div>
+                            </div>
+                        </div>
+
+                        <!-- Detail Card -->
+                        <div class="bg-army-900 border border-army-700/80 rounded-xl p-5 space-y-4 shadow-lg">
+                            <h3 class="text-sm font-bold text-slate-100 uppercase border-b border-army-800 pb-2">
+                                Lernfortschritt Detail
+                            </h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-300">Richtig beantwortet</span>
+                                        <span class="text-emerald-400 font-mono font-bold">${correct}</span>
+                                    </div>
+                                    <div class="w-full bg-army-950 rounded-full h-2">
+                                        <div class="bg-emerald-500 h-2 rounded-full" style="width: ${totalAnswered > 0 ? (correct / totalAnswered) * 100 : 0}%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-300">Falsch / Wiederholt</span>
+                                        <span class="text-red-400 font-mono font-bold">${wrong}</span>
+                                    </div>
+                                    <div class="w-full bg-army-950 rounded-full h-2">
+                                        <div class="bg-red-500 h-2 rounded-full" style="width: ${totalAnswered > 0 ? (wrong / totalAnswered) * 100 : 0}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                container.innerHTML = html;
+            }
+
+            /* =========================================================================
+               MODALS & FORM ACTIONS
+               ========================================================================= */
+            openNewFolderModal() {
+                document.getElementById('form-folder').reset();
+                document.getElementById('modal-folder').classList.remove('hidden');
+            }
+
+            openNewCardModal(preselectFolderId = null) {
+                const select = document.getElementById('card-folder-id');
+                select.innerHTML = '';
+                
+                if (this.folders.length === 0) {
+                    this.showToast('Erstelle zuerst einen Ordner!', 'error');
+                    this.openNewFolderModal();
+                    return;
+                }
+
+                this.folders.forEach(f => {
+                    const opt = document.createElement('option');
+                    opt.value = f.id;
+                    opt.textContent = f.name;
+                    if (preselectFolderId && f.id === preselectFolderId) opt.selected = true;
+                    select.appendChild(opt);
+                });
+
+                document.getElementById('form-card').reset();
+                this.clearCardImagePreview();
+                document.getElementById('modal-card').classList.remove('hidden');
+            }
+
+            openNewDocModal() {
+                document.getElementById('form-doc').reset();
+                this.tempDocFile = null;
+                document.getElementById('doc-file-name').textContent = '';
+                document.getElementById('modal-doc').classList.remove('hidden');
+            }
+
+            closeModal(modalId) {
+                document.getElementById(modalId).classList.add('hidden');
+            }
+
+            async saveFolder(event) {
+                event.preventDefault();
+                const name = document.getElementById('folder-name').value.trim();
+                const category = document.getElementById('folder-category').value;
+                const description = document.getElementById('folder-desc').value.trim();
+
+                const newFolder = {
+                    id: 'f_' + Date.now(),
+                    name,
+                    category,
+                    description,
+                    createdAt: Date.now()
+                };
+
+                await this.storage.save('folders', newFolder);
+                this.folders.push(newFolder);
+                this.closeModal('modal-folder');
+                this.showToast('Ordner erfolgreich erstellt', 'success');
+                if (this.currentTab === 'decks') this.renderDecksView(document.getElementById('main-content'));
+            }
+
+            async deleteFolder(id) {
+                if (confirm('Möchtest du diesen Ordner inklusive aller enthaltenen Karten wirklich löschen?')) {
+                    await this.storage.delete('folders', id);
+                    this.folders = this.folders.filter(f => f.id !== id);
+                    
+                    // Delete associated cards
+                    const cardsToDelete = this.cards.filter(c => c.folderId === id);
+                    for (const card of cardsToDelete) {
+                        await this.storage.delete('cards', card.id);
+                    }
+                    this.cards = this.cards.filter(c => c.folderId !== id);
+
+                    this.showToast('Ordner gelöscht', 'info');
+                    if (this.currentTab === 'decks') this.renderDecksView(document.getElementById('main-content'));
+                }
+            }
+
+            handleCardImageUpload(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.tempCardImage = e.target.result;
+                    const img = document.getElementById('card-image-preview');
+                    img.src = this.tempCardImage;
+                    document.getElementById('card-image-preview-container').classList.remove('hidden');
+                    document.getElementById('remove-card-img-btn').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+
+            clearCardImagePreview() {
+                this.tempCardImage = null;
+                document.getElementById('card-image-preview').src = '';
+                document.getElementById('card-image-preview-container').classList.add('hidden');
+                document.getElementById('remove-card-img-btn').classList.add('hidden');
+                document.getElementById('card-image-input').value = '';
+            }
+
+            async saveCard(event) {
+                event.preventDefault();
+                const folderId = document.getElementById('card-folder-id').value;
+                const front = document.getElementById('card-front').value.trim();
+                const back = document.getElementById('card-back').value.trim();
+                const hint = document.getElementById('card-hint').value.trim();
+
+                const newCard = {
+                    id: 'c_' + Date.now(),
+                    folderId,
+                    front,
+                    back,
+                    hint,
+                    imageData: this.tempCardImage || null,
+                    box: 1,
+                    createdAt: Date.now()
+                };
+
+                await this.storage.save('cards', newCard);
+                this.cards.push(newCard);
+                this.closeModal('modal-card');
+                this.showToast('Karteikarte gespeichert', 'success');
+                if (this.currentTab === 'decks') this.renderDecksView(document.getElementById('main-content'));
+            }
+
+            handleDocFileUpload(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.tempDocFile = {
+                        data: e.target.result,
+                        name: file.name,
+                        type: file.type
+                    };
+                    document.getElementById('doc-file-name').textContent = 'Anhang: ' + file.name;
+                };
+                reader.readAsDataURL(file);
+            }
+
+            async saveDocument(event) {
+                event.preventDefault();
+                const title = document.getElementById('doc-title').value.trim();
+                const category = document.getElementById('doc-category').value;
+                const content = document.getElementById('doc-content').value.trim();
+
+                const newDoc = {
+                    id: 'd_' + Date.now(),
+                    title,
+                    category,
+                    content,
+                    fileData: this.tempDocFile ? this.tempDocFile.data : null,
+                    fileName: this.tempDocFile ? this.tempDocFile.name : null,
+                    fileType: this.tempDocFile ? this.tempDocFile.type : null,
+                    createdAt: Date.now()
+                };
+
+                await this.storage.save('documents', newDoc);
+                this.documents.push(newDoc);
+                this.closeModal('modal-doc');
+                this.showToast('Dokument gespeichert', 'success');
+                if (this.currentTab === 'docs') this.renderDocsView(document.getElementById('main-content'));
+            }
+
+            async deleteDocument(id) {
+                if (confirm('Dokument wirklich löschen?')) {
+                    await this.storage.delete('documents', id);
+                    this.documents = this.documents.filter(d => d.id !== id);
+                    this.showToast('Dokument gelöscht', 'info');
+                    if (this.currentTab === 'docs') this.renderDocsView(document.getElementById('main-content'));
+                }
+            }
+
+            /* =========================================================================
+               UTILITY FUNCTIONS
+               ========================================================================= */
+            getCategoryIcon(category) {
+                switch (category) {
+                    case 'Dienstgrade': return 'fa-solid fa-ranking-star';
+                    case 'Waffenkunde': return 'fa-solid fa-crosshair';
+                    case 'Exerzierdienst': return 'fa-solid fa-person-military-pointing';
+                    case 'Vorschriften': return 'fa-solid fa-book';
+                    case 'Erste Hilfe': return 'fa-solid fa-kit-medical';
+                    case 'Taktik': return 'fa-solid fa-compass';
+                    default: return 'fa-solid fa-folder';
+                }
+            }
+
+            showToast(message, type = 'info') {
+                const toast = document.getElementById('toast');
+                const toastMsg = document.getElementById('toast-msg');
+                const toastIcon = document.getElementById('toast-icon');
+
+                toastMsg.textContent = message;
+
+                if (type === 'success') {
+                    toastIcon.className = 'fa-solid fa-circle-check text-emerald-400';
+                } else if (type === 'error') {
+                    toastIcon.className = 'fa-solid fa-triangle-exclamation text-red-400';
+                } else {
+                    toastIcon.className = 'fa-solid fa-circle-info text-army-accent';
+                }
+
+                toast.classList.remove('translate-y-[-150%]', 'opacity-0');
+                toast.classList.add('translate-y-0', 'opacity-100');
+
+                setTimeout(() => {
+                    toast.classList.remove('translate-y-0', 'opacity-100');
+                    toast.classList.add('translate-y-[-150%]', 'opacity-0');
+                }, 2500);
+            }
+
+            escapeHtml(str) {
+                if (!str) return '';
+                return str.replace(/[&<>"']/g, function(m) {
+                    return {
+                        '&': '&amp;',
+                        '<': '&lt;',
+                        '>': '&gt;',
+                        '"': '&quot;',
+                        "'": '&#039;'
+                    }[m];
+                });
+            }
+        }
+
+        // Initialize App on Load
+        let app;
+        window.addEventListener('DOMContentLoaded', () => {
+            app = new App();
+            app.init();
+        });
+    </script>
+</body>
+</html>
